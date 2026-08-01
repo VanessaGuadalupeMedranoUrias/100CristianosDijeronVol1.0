@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Cristianos Dijeron - Juego</title>
+    
+    <style>
+        /* ========== ESTILOS GAME ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f0f85a 0%, #a24b4b 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            margin: 20px 0;
+            animation: slideUp 0.5s ease;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== BOTON SALIR CON X ===== */
+        .btn-exit {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #fc8181;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            box-shadow: 0 2px 10px rgba(252, 129, 129, 0.3);
+            z-index: 10;
+        }
+
+        .btn-exit:hover {
+            background: #e53e3e;
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(252, 129, 129, 0.5);
+        }
+
+        /* ===== HEADER ===== */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            padding-right: 45px;
+            border-bottom: 3px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .header-teams {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .header-team {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            border-radius: 50px;
+            background: #f7fafc;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #4a5568;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .header-team:hover {
+            transform: scale(1.02);
+        }
+
+        .header-team.active {
+            border-color: #667eea;
+            background: #ebf4ff;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: scale(1.05);
+            color: #2d3748;
+        }
+
+        .header-team .mini-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            flex-shrink: 0;
+        }
+
+        .header-team .team-name {
+            font-size: 0.95rem;
+        }
+
+        .header-team .team-pts {
+            font-size: 0.85rem;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 10px;
+            border-radius: 50px;
+        }
+
+        .header-team .active-badge {
+            display: none;
+            font-size: 0.7rem;
+            background: #667eea;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 50px;
+            animation: pulseBadge 1s infinite;
+        }
+
+        .header-team.active .active-badge {
+            display: inline-block;
+        }
+
+        .header-team .error-counter {
+            font-size: 0.7rem;
+            color: #fc8181;
+            background: #fff5f5;
+            padding: 2px 10px;
+            border-radius: 50px;
+            border: 1px solid #fc8181;
+        }
+
+        .header-team .robbery-badge {
+            font-size: 0.7rem;
+            color: #ffd700;
+            background: #2d3748;
+            padding: 2px 10px;
+            border-radius: 50px;
+            border: 1px solid #ffd700;
+            animation: pulseBadge 1s infinite;
+            display: none;
+        }
+
+        .header-team.robbery-mode .robbery-badge {
+            display: inline-block;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header-vs {
+            font-weight: 900;
+            color: #764ba2;
+            font-size: 1.2rem;
+        }
+
+        /* ===== BOTON OJO - MOSTRAR PREGUNTA ===== */
+        .btn-eye {
+            background: linear-gradient(135deg, #f0f85a 0%, #a24b4b 100%);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .btn-eye:hover:not(:disabled) {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-eye:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        /* ===== PREGUNTA ===== */
+        .question-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 15px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            color: #2d3748;
+            font-weight: 700;
+            padding: 10px;
+        }
+
+        .question-text.hidden {
+            color: #a0aec0;
+            font-size: 1.1rem;
+        }
+
+        /* ===== RESPUESTAS ===== */
+        .answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .answer-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 56px;
+        }
+
+        .answer-item:hover:not(.disabled) {
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .answer-item.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .answer-item .answer-number {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+            min-width: 35px;
+        }
+
+        .answer-item .answer-text {
+            flex: 1;
+            font-size: 1.1rem;
+            color: #2d3748;
+            font-weight: 500;
+            padding: 0 12px;
+        }
+
+        .answer-item .answer-text.hidden-text {
+            color: #a0aec0;
+            font-weight: 300;
+            letter-spacing: 4px;
+        }
+
+        .answer-item .answer-dots {
+            flex: 1;
+            color: #cbd5e0;
+            letter-spacing: 2px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .answer-item .answer-points {
+            font-weight: bold;
+            color: #48bb78;
+            font-size: 0.95rem;
+            background: #f0fff4;
+            padding: 4px 14px;
+            border-radius: 50px;
+            border: 2px solid #48bb78;
+            min-width: 55px;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .answer-item.revealed .answer-points {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .answer-item.revealed {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .answer-item.revealed .answer-text.hidden-text {
+            color: #2d3748;
+            letter-spacing: 0;
+            font-weight: 500;
+        }
+
+        .answer-item.correct-highlight {
+            border-color: #48bb78;
+            background: #f0fff4;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .answer-item.wrong-highlight {
+            border-color: #fc8181;
+            background: #fff5f5;
+            animation: shake 0.5s ease;
+        }
+
+        .answer-item.show-all {
+            border-color: #a0aec0;
+            background: #f7fafc;
+            cursor: default;
+        }
+
+        .answer-item.show-all .answer-text.hidden-text {
+            color: #2d3748;
+            letter-spacing: 0;
+            font-weight: 500;
+        }
+
+        .answer-item.show-all .answer-points {
+            opacity: 1;
+            transform: scale(1);
+            background: #f7fafc;
+            border-color: #a0aec0;
+            color: #4a5568;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            75% { transform: translateX(15px); }
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* ===== BOTONES DE CONTROL ===== */
+        .control-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn-error {
+            background: #fc8181;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-error:hover:not(:disabled) {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(252, 129, 129, 0.4);
+        }
+
+        .btn-error:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-robo {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn-robo:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(243, 156, 18, 0.5);
+        }
+
+        .btn-robo:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #f0f85a 0%, #a24b4b 100%);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-show-all {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .btn-show-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(113, 128, 150, 0.4);
+        }
+
+        .btn-show-all.visible {
+            display: inline-block;
+        }
+
+        /* ===== PROGRESO ===== */
+        .progress-section {
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #f0f85a 0%, #a24b4b 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #4a5568;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        /* ===== FEEDBACK OVERLAY ===== */
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .feedback-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback-content {
+            text-align: center;
+            padding: 40px;
+            animation: bounceIn 0.5s ease;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .feedback-image {
+            max-width: 80%;
+            max-height: 60vh;
+            animation: pulseImage 0.5s ease;
+        }
+
+        @keyframes pulseImage {
+            0% { transform: scale(0) rotate(-20deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        .feedback-text {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-top: 20px;
+            text-shadow: 0 0 30px rgba(252, 129, 129, 0.5);
+        }
+
+        .feedback-text.robbery-text {
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .feedback-subtext {
+            color: #fc8181;
+            font-size: 1.5rem;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .feedback-subtext.robbery {
+            color: #ffd700;
+            animation: glowText 1s infinite;
+        }
+
+        .feedback-subtext.robo-success {
+            color: #48bb78;
+        }
+
+        .feedback-subtext.robo-failed {
+            color: #fc8181;
+        }
+
+        @keyframes glowText {
+            0%, 100% { text-shadow: 0 0 10px #ffd700; }
+            50% { text-shadow: 0 0 30px #ffd700, 0 0 60px #ff6b00; }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+
+            .game-header {
+                padding-right: 0;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-teams {
+                justify-content: center;
+            }
+
+            .header-team {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
+            .header-team .mini-dot {
+                width: 14px;
+                height: 14px;
+            }
+
+            .header-actions {
+                justify-content: center;
+            }
+
+            .btn-eye {
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
+
+            .btn-exit {
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+
+            .question-text {
+                font-size: 1.2rem;
+            }
+
+            .answer-item {
+                padding: 12px 15px;
+            }
+
+            .answer-item .answer-text {
+                font-size: 0.95rem;
+            }
+
+            .answer-item .answer-dots {
+                display: none;
+            }
+
+            .feedback-text {
+                font-size: 1.8rem;
+            }
+
+            .feedback-image {
+                max-width: 90%;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+            }
+
+            .control-buttons button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-team .team-pts {
+                font-size: 0.7rem;
+                padding: 1px 8px;
+            }
+
+            .header-team .active-badge {
+                font-size: 0.6rem;
+                padding: 1px 8px;
+            }
+
+            .question-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- BOTON SALIR CON X -->
+        <button class="btn-exit" onclick="exitGame()" title="Salir">X</button>
+
+        <!-- HEADER -->
+        <div class="game-header">
+            <div class="header-teams">
+                <div class="header-team active" id="headerTeam1" onclick="switchTurn(1)">
+                    <span class="mini-dot" id="headerColor1" style="background: #FF6B6B;"></span>
+                    <span class="team-name" id="headerName1">Aguilas</span>
+                    <span class="team-pts" id="headerPts1">0 pts</span>
+                    <span class="error-counter" id="errorCounter1">0</span>
+                    <span class="active-badge">TURNO</span>
+                    <span class="robbery-badge">ROBO</span>
+                </div>
+                
+                <span class="header-vs">VS</span>
+                
+                <div class="header-team" id="headerTeam2" onclick="switchTurn(2)">
+                    <span class="mini-dot" id="headerColor2" style="background: #4ECDC4;"></span>
+                    <span class="team-name" id="headerName2">Leones</span>
+                    <span class="team-pts" id="headerPts2">0 pts</span>
+                    <span class="error-counter" id="errorCounter2">0</span>
+                    <span class="active-badge">TURNO</span>
+                    <span class="robbery-badge">ROBO</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="btn-eye" id="btnShowQuestion" onclick="showQuestion()" title="Mostrar Pregunta">
+                    &#128065;
+                </button>
+            </div>
+        </div>
+
+        <!-- PREGUNTA -->
+        <div class="question-section">
+            <div class="question-text hidden" id="questionText">
+                Haz clic en el ojo para revelar la pregunta
+            </div>
+        </div>
+
+        <!-- RESPUESTAS -->
+        <div class="answers-list" id="answersList">
+            <!-- Las respuestas se generan con JavaScript -->
+        </div>
+
+        <!-- BOTONES DE CONTROL -->
+        <div class="control-buttons">
+            <button class="btn-error" id="btnError" onclick="triggerError()" disabled>
+                Marcar Error
+            </button>
+            <button class="btn-robo" id="btnRobo" onclick="triggerRobo()" disabled>
+                ROBO
+            </button>
+            <button class="btn-show-all" id="btnShowAll" onclick="showAllAnswers()">
+                Mostrar Respuestas
+            </button>
+            <button class="btn-next" id="btnNext" onclick="nextQuestion()" disabled>
+                Siguiente Pregunta
+            </button>
+        </div>
+
+        <!-- PROGRESO -->
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Pregunta 1 de 24</div>
+        </div>
+    </div>
+
+    <!-- FEEDBACK OVERLAY -->
+    <div class="feedback-overlay" id="feedbackOverlay">
+        <div class="feedback-content">
+            <img src="assets/images/equis.png" alt="Error" class="feedback-image" id="feedbackImage"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23fc8181%22 font-size=%22100%22 font-family=%22Arial%22%3E✖%3C/text%3E%3C/svg%3E'">
+            <div class="feedback-text" id="feedbackText">RESPUESTA INCORRECTA</div>
+            <div class="feedback-subtext" id="feedbackSubtext">Error 1 de 3</div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ========== DATOS DEL JUEGO ==========
+        // ==========================================
+
+        const ALL_QUESTIONS = [
+            {
+                id: 0,
+                question: 'Que es lo primero que haces al entrar a la iglesia?',
+                answers: [
+                    { text: 'Santiguarme/Persinarme', points: 45 },
+                    { text: 'Buscar un lugar donde sentarme', points: 25 },
+                    { text: 'Hacer una reverencia al altar', points: 15 },
+                    { text: 'Saludar a mis amigos', points: 10 },
+                    { text: 'Rezar/Orar', points: 5 }
+                ]
+            },
+            {
+                id: 1,
+                question: 'Di algo que siempre llevas en tu mochila o morral para la misa.',
+                answers: [
+                    { text: 'El telefono celular', points: 40 },
+                    { text: 'Un rosario', points: 25 },
+                    { text: 'Una Biblia o misal', points: 15 },
+                    { text: 'Agua para tomar', points: 12 },
+                    { text: 'Un cuaderno y pluma', points: 8 }
+                ]
+            },
+            {
+                id: 2,
+                question: 'Cual es el pecado mas comun entre los jovenes hoy en dia?',
+                answers: [
+                    { text: 'Hablar mal de otros (chisme)', points: 35 },
+                    { text: 'No respetar a los padres', points: 25 },
+                    { text: 'Mentir', points: 18 },
+                    { text: 'Ver contenido malo en internet', points: 14 },
+                    { text: 'No ir a misa los domingos', points: 8 }
+                ]
+            },
+            {
+                id: 3,
+                question: 'Que comida no puede faltar en una convivencia juvenil catolica?',
+                answers: [
+                    { text: 'Pizza', points: 40 },
+                    { text: 'Tacos', points: 25 },
+                    { text: 'Papas fritas / Sabritas', points: 15 },
+                    { text: 'Refresco', points: 12 },
+                    { text: 'Galletas', points: 8 }
+                ]
+            },
+            {
+                id: 4,
+                question: 'Di algo que harias por amor a Dios.',
+                answers: [
+                    { text: 'Ayudar a un necesitado', points: 40 },
+                    { text: 'Dejar el celular por un dia', points: 20 },
+                    { text: 'Madrugar para ir a misa', points: 18 },
+                    { text: 'Ayunar un dia a la semana', points: 12 },
+                    { text: 'Perdonar a quien me ofendio', points: 10 }
+                ]
+            },
+            {
+                id: 5,
+                question: 'Nombra un "fruto del Espiritu Santo" que te gustaria tener mas.',
+                answers: [
+                    { text: 'Paciencia', points: 35 },
+                    { text: 'Amor', points: 25 },
+                    { text: 'Paz', points: 20 },
+                    { text: 'Alegria', points: 12 },
+                    { text: 'Bondad', points: 8 }
+                ]
+            },
+            {
+                id: 6,
+                question: 'Que es lo que mas te distrae en la Misa?',
+                answers: [
+                    { text: 'Pensar en otras cosas / problemas', points: 38 },
+                    { text: 'El celular', points: 25 },
+                    { text: 'Los ninos llorando', points: 18 },
+                    { text: 'El hambre', points: 12 },
+                    { text: 'El sueno', points: 7 }
+                ]
+            },
+            {
+                id: 7,
+                question: 'Cual es el mandamiento que mas se te olvida cumplir?',
+                answers: [
+                    { text: 'Amaras a tu projimo como a ti mismo', points: 35 },
+                    { text: 'Honraras a tu padre y a tu madre', points: 25 },
+                    { text: 'No diras falso testimonio (no mentir)', points: 18 },
+                    { text: 'No codiciaras (no envidiar)', points: 12 },
+                    { text: 'Santificaras las fiestas (ir a Misa)', points: 10 }
+                ]
+            },
+            {
+                id: 8,
+                question: 'Que es lo que mas te gusta del grupo juvenil?',
+                answers: [
+                    { text: 'La convivencia y los amigos', points: 40 },
+                    { text: 'Las dinamicas y juegos', points: 22 },
+                    { text: 'El momento de ambientacion', points: 18 },
+                    { text: 'Los retiros', points: 12 },
+                    { text: 'Que te escuchan sin juzgarte', points: 8 }
+                ]
+            },
+            {
+                id: 9,
+                question: 'En que momento de la Misa sientes que Dios esta mas cerca?',
+                answers: [
+                    { text: 'En la Comunión', points: 45 },
+                    { text: 'En la Consagracion', points: 25 },
+                    { text: 'En el Padre Nuestro', points: 12 },
+                    { text: 'En el perdon inicial (Acto Penitencial)', points: 10 },
+                    { text: 'En la lectura del Evangelio', points: 8 }
+                ]
+            },
+            {
+                id: 10,
+                question: 'Como le demuestras amor a tu familia en el dia a dia?',
+                answers: [
+                    { text: 'Ayudando en los quehaceres de la casa', points: 30 },
+                    { text: 'Dando un abrazo o un beso', points: 25 },
+                    { text: 'Haciendoles de comer o un detalle', points: 18 },
+                    { text: 'Pidiendoles perdon cuando me equivoco', points: 15 },
+                    { text: 'Rezando por ellos', points: 12 }
+                ]
+            },
+            {
+                id: 11,
+                question: 'Que aplicacion uso mas para comunicarme con mi grupo juvenil?',
+                answers: [
+                    { text: 'WhatsApp', points: 45 },
+                    { text: 'Instagram', points: 25 },
+                    { text: 'Tiktok', points: 12 },
+                    { text: 'Facebook', points: 10 },
+                    { text: 'Telegram', points: 8 }
+                ]
+            },
+            {
+                id: 12,
+                question: 'Cual fue el milagro publico mas famoso de Jesus?',
+                answers: [
+                    { text: 'Convertir agua en vino en las bodas de Cana', points: 50 },
+                    { text: 'Curar a un leproso', points: 18 },
+                    { text: 'Sanar al criado del centurion', points: 15 },
+                    { text: 'Expulsar un demonio', points: 10 },
+                    { text: 'Llamar a sus primeros discipulos', points: 7 }
+                ]
+            },
+            {
+                id: 13,
+                question: 'Que milagro de Jesus involucraba una gran cantidad de comida?',
+                answers: [
+                    { text: 'La multiplicacion de los panes y los peces', points: 60 },
+                    { text: 'La conversion del agua en vino', points: 18 },
+                    { text: 'La cena con Zaqueo', points: 12 },
+                    { text: 'La pesca milagrosa', points: 10 }
+                ]
+            },
+            {
+                id: 14,
+                question: 'Que milagro te gustaria haber presenciado en persona?',
+                answers: [
+                    { text: 'La resurreccion de Lazaro', points: 30 },
+                    { text: 'La multiplicacion de los panes y peces', points: 25 },
+                    { text: 'Jesus caminando sobre el agua', points: 20 },
+                    { text: 'La curacion del ciego de nacimiento', points: 15 },
+                    { text: 'Las bodas de Cana (agua en vino)', points: 10 }
+                ]
+            },
+            {
+                id: 15,
+                question: 'Que es lo que mas te gusta de ir a Misa el domingo?',
+                answers: [
+                    { text: 'La Comunión', points: 35 },
+                    { text: 'Escuchar la homilia', points: 20 },
+                    { text: 'Cantar las canciones', points: 18 },
+                    { text: 'Ver a mis amigos', points: 15 },
+                    { text: 'El momento de paz al final', points: 12 }
+                ]
+            },
+            {
+                id: 16,
+                question: 'Que harías si un amigo te dice que no cree en Dios?',
+                answers: [
+                    { text: 'Le platico con respeto sobre mi fe', points: 35 },
+                    { text: 'Rezo por el en secreto', points: 25 },
+                    { text: 'Lo invito a una actividad del grupo juvenil', points: 20 },
+                    { text: 'Le digo que esta mal y me enojo', points: 12 },
+                    { text: 'No le digo nada y cambio de tema', points: 8 }
+                ]
+            },
+            {
+                id: 17,
+                question: 'Que es lo primero que haces cuando te despiertas?',
+                answers: [
+                    { text: 'Orar/Agradecer', points: 30 },
+                    { text: 'Revisar el celular', points: 28 },
+                    { text: 'Volver a dormir', points: 18 },
+                    { text: 'Baniarme', points: 14 },
+                    { text: 'Desayunar', points: 10 }
+                ]
+            },
+            {
+                id: 18,
+                question: 'Si Jesus te pidiera que dejaras algo por El, que seria?',
+                answers: [
+                    { text: 'Mi celular', points: 30 },
+                    { text: 'Mis malas amistades', points: 25 },
+                    { text: 'Mi orgullo', points: 20 },
+                    { text: 'Mi tiempo libre', points: 15 },
+                    { text: 'Una red social', points: 10 }
+                ]
+            },
+            {
+                id: 19,
+                question: 'Cual es tu advocacion mariana favorita?',
+                answers: [
+                    { text: 'Virgen de Guadalupe', points: 40 },
+                    { text: 'Virgen de Fatima', points: 20 },
+                    { text: 'Virgen de Lourdes', points: 15 },
+                    { text: 'Virgen del Carmen', points: 13 },
+                    { text: 'Maria Auxiliadora', points: 12 }
+                ]
+            },
+            {
+                id: 20,
+                question: 'Que don del Espiritu Santo te gustaria tener mas?',
+                answers: [
+                    { text: 'Sabiduria', points: 30 },
+                    { text: 'Fortaleza', points: 25 },
+                    { text: 'Consejo', points: 18 },
+                    { text: 'Piedad', points: 15 },
+                    { text: 'Temor de Dios', points: 12 }
+                ]
+            },
+            {
+                id: 21,
+                question: 'Cual es tu sacramento favorito?',
+                answers: [
+                    { text: 'La Eucaristia (Comunión)', points: 35 },
+                    { text: 'La Reconciliacion (Confesión)', points: 25 },
+                    { text: 'La Confirmación', points: 18 },
+                    { text: 'El Bautismo', points: 15 },
+                    { text: 'El Matrimonio', points: 7 }
+                ]
+            },
+            {
+                id: 22,
+                question: 'Que es lo que mas te cuesta de ir a confesarte?',
+                answers: [
+                    { text: 'Decir los pecados en voz alta', points: 35 },
+                    { text: 'Hacer el proposito de enmienda', points: 25 },
+                    { text: 'Acordarme de todos mis pecados', points: 18 },
+                    { text: 'Esperar mi turno', points: 12 },
+                    { text: 'Cumplir la penitencia', points: 10 }
+                ]
+            },
+            {
+                id: 23,
+                question: 'Cual es tu oracion favorita?',
+                answers: [
+                    { text: 'El Padre Nuestro', points: 35 },
+                    { text: 'El Ave Maria', points: 25 },
+                    { text: 'El Rosario', points: 18 },
+                    { text: 'El Gloria', points: 12 },
+                    { text: 'El Credo', points: 10 }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // ========== ESTADO DEL JUEGO ==========
+        // ==========================================
+
+        const STORAGE_KEY = 'cristianos_game_state';
+
+        let gameState = {
+            currentQuestion: 0,
+            totalQuestions: ALL_QUESTIONS.length,
+            team1: null,
+            team2: null,
+            activeTeam: 1,
+            questionRevealed: false,
+            errorCount: 0,
+            robberyActive: false,
+            isProcessing: false,
+            robberyAnswered: false,
+            roboUsed: false,
+            errorLocked: false,
+            revealedAnswers: [],
+            totalRevealedPoints: 0,
+            isRoundFinished: false,
+            isRobberyMode: false,
+            originalTeam: null,
+            robberyErrorUsed: false,
+            allAnswersRevealed: false,
+            usedQuestionIds: [],
+            availableQuestions: [],
+            teamScores: {}
+        };
+
+        // ==========================================
+        // ========== FUNCIONES DE PERSISTENCIA ==========
+        // ==========================================
+
+        function saveGameState() {
+            try {
+                const dataToSave = {
+                    usedQuestionIds: gameState.usedQuestionIds,
+                    teamScores: gameState.teamScores
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            } catch (e) {
+                console.error('Error al guardar el estado:', e);
+            }
+        }
+
+        function loadGameState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    gameState.usedQuestionIds = data.usedQuestionIds || [];
+                    gameState.teamScores = data.teamScores || {};
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                console.error('Error al cargar el estado:', e);
+                return false;
+            }
+        }
+
+        function getAvailableQuestions() {
+            return ALL_QUESTIONS.filter(q => !gameState.usedQuestionIds.includes(q.id));
+        }
+
+        function getNextQuestion() {
+            const available = getAvailableQuestions();
+            if (available.length === 0) {
+                gameState.usedQuestionIds = [];
+                saveGameState();
+                return getNextQuestion();
+            }
+            const randomIndex = Math.floor(Math.random() * available.length);
+            return available[randomIndex];
+        }
+
+        // ==========================================
+        // ========== INICIALIZAR ==========
+        // ==========================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGameState();
+
+            const saved = localStorage.getItem('gameTeams');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    gameState.team1 = data.team1;
+                    gameState.team2 = data.team2;
+                    
+                    const team1Id = gameState.team1.id;
+                    const team2Id = gameState.team2.id;
+                    gameState.team1.score = gameState.teamScores[team1Id] || 0;
+                    gameState.team2.score = gameState.teamScores[team2Id] || 0;
+                    gameState.team1.mistakes = 0;
+                    gameState.team2.mistakes = 0;
+                    
+                    document.getElementById('headerName1').textContent = gameState.team1.name;
+                    document.getElementById('headerColor1').style.background = gameState.team1.color;
+                    document.getElementById('headerName2').textContent = gameState.team2.name;
+                    document.getElementById('headerColor2').style.background = gameState.team2.color;
+                    
+                    updateHeader();
+                } catch (e) {
+                    console.error('Error:', e);
+                    window.location.href = 'teams.html';
+                }
+            } else {
+                alert('No hay equipos seleccionados');
+                window.location.href = 'teams.html';
+            }
+
+            loadNewQuestion();
+            updateProgress();
+        });
+
+        // ==========================================
+        // ========== FUNCIONES PRINCIPALES ==========
+        // ==========================================
+
+        function loadNewQuestion() {
+            const questionData = getNextQuestion();
+            
+            if (!questionData) {
+                alert('Ya respondiste todas las preguntas! Ve a la pagina de equipos y reinicia.');
+                return;
+            }
+
+            gameState.usedQuestionIds.push(questionData.id);
+            saveGameState();
+
+            const questionIndex = ALL_QUESTIONS.indexOf(questionData);
+            gameState.currentQuestion = questionIndex;
+            gameState.totalQuestions = ALL_QUESTIONS.length;
+
+            const question = ALL_QUESTIONS[gameState.currentQuestion];
+            
+            document.getElementById('questionText').textContent = 'Haz clic en el ojo para revelar la pregunta';
+            document.getElementById('questionText').className = 'question-text hidden';
+            
+            const container = document.getElementById('answersList');
+            container.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const div = document.createElement('div');
+                div.className = 'answer-item';
+                
+                const hiddenText = answer.text.replace(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '*');
+                
+                div.innerHTML = `
+                    <span class="answer-number">${index + 1}.</span>
+                    <span class="answer-text hidden-text">${hiddenText}</span>
+                    <span class="answer-dots">.................</span>
+                    <span class="answer-points">${answer.points} pts</span>
+                `;
+                div.dataset.index = index;
+                div.dataset.realText = answer.text;
+                div.dataset.points = answer.points;
+                div.onclick = () => selectAnswer(index);
+                container.appendChild(div);
+            });
+            
+            gameState.questionRevealed = false;
+            gameState.errorCount = 0;
+            gameState.robberyActive = false;
+            gameState.robberyAnswered = false;
+            gameState.isProcessing = false;
+            gameState.roboUsed = false;
+            gameState.errorLocked = false;
+            gameState.revealedAnswers = [];
+            gameState.totalRevealedPoints = 0;
+            gameState.isRoundFinished = false;
+            gameState.isRobberyMode = false;
+            gameState.originalTeam = null;
+            gameState.robberyErrorUsed = false;
+            gameState.allAnswersRevealed = false;
+            
+            document.getElementById('btnShowQuestion').disabled = false;
+            document.getElementById('btnError').disabled = true;
+            document.getElementById('btnRobo').disabled = true;
+            document.getElementById('btnNext').disabled = true;
+            document.getElementById('btnShowAll').classList.remove('visible');
+            
+            document.getElementById('errorCounter1').textContent = '0';
+            document.getElementById('errorCounter2').textContent = '0';
+            
+            document.getElementById('headerTeam1').classList.remove('robbery-mode');
+            document.getElementById('headerTeam2').classList.remove('robbery-mode');
+            
+            const remaining = getAvailableQuestions().length;
+            document.getElementById('progressText').textContent = 'Pregunta ' + (gameState.usedQuestionIds.length) + ' de ' + ALL_QUESTIONS.length + ' | Restantes: ' + remaining;
+            
+            updateHeader();
+            updateProgress();
+        }
+
+        function showQuestion() {
+            if (gameState.questionRevealed) return;
+            
+            const question = ALL_QUESTIONS[gameState.currentQuestion];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('questionText').className = 'question-text';
+            
+            gameState.questionRevealed = true;
+            document.getElementById('btnShowQuestion').disabled = true;
+            
+            document.querySelectorAll('.answer-item').forEach(item => {
+                item.classList.remove('disabled');
+            });
+            
+            document.getElementById('btnError').disabled = false;
+        }
+
+        function selectAnswer(index) {
+            if (gameState.isProcessing) return;
+            if (gameState.robberyActive) return;
+            if (!gameState.questionRevealed) return;
+            if (gameState.isRoundFinished) return;
+            if (gameState.allAnswersRevealed) return;
+            
+            if (gameState.isRobberyMode) {
+                if (gameState.revealedAnswers.includes(index)) return;
+                selectRobberyAnswer(index);
+                return;
+            }
+            
+            if (gameState.revealedAnswers.includes(index)) return;
+            
+            const question = ALL_QUESTIONS[gameState.currentQuestion];
+            const selectedAnswer = question.answers[index];
+            const items = document.querySelectorAll('.answer-item');
+            
+            gameState.revealedAnswers.push(index);
+            gameState.totalRevealedPoints += selectedAnswer.points;
+            
+            const item = items[index];
+            const textSpan = item.querySelector('.answer-text');
+            textSpan.textContent = selectedAnswer.text;
+            textSpan.classList.remove('hidden-text');
+            item.classList.add('revealed', 'correct-highlight');
+            
+            const team = gameState.activeTeam === 1 ? gameState.team1 : gameState.team2;
+            team.score += selectedAnswer.points;
+            
+            const teamId = team.id;
+            gameState.teamScores[teamId] = (gameState.teamScores[teamId] || 0) + selectedAnswer.points;
+            saveGameState();
+            
+            updateHeader();
+            showPointsFeedback(selectedAnswer.points, team);
+            
+            if (gameState.revealedAnswers.length > 0) {
+                document.getElementById('btnRobo').disabled = false;
+            }
+            
+            if (gameState.revealedAnswers.length === question.answers.length) {
+                gameState.isRoundFinished = true;
+                document.getElementById('btnNext').disabled = false;
+                document.getElementById('btnError').disabled = true;
+                document.getElementById('btnShowAll').classList.remove('visible');
+            } else {
+                document.getElementById('btnShowAll').classList.add('visible');
+            }
+        }
+
+        function triggerRobo() {
+            if (gameState.roboUsed) return;
+            if (gameState.revealedAnswers.length === 0) return;
+            if (gameState.isProcessing) return;
+            if (gameState.robberyActive) return;
+            if (gameState.isRobberyMode) return;
+            if (gameState.allAnswersRevealed) return;
+            
+            const points = gameState.totalRevealedPoints;
+            const activeTeam = gameState.activeTeam === 1 ? gameState.team1 : gameState.team2;
+            const oppositeTeam = gameState.activeTeam === 1 ? gameState.team2 : gameState.team1;
+            
+            activeTeam.score = Math.max(0, activeTeam.score - points);
+            oppositeTeam.score += points;
+            
+            gameState.teamScores[activeTeam.id] = activeTeam.score;
+            gameState.teamScores[oppositeTeam.id] = oppositeTeam.score;
+            saveGameState();
+            
+            gameState.roboUsed = true;
+            document.getElementById('btnRobo').disabled = true;
+            gameState.isRoundFinished = true;
+            document.getElementById('btnNext').disabled = false;
+            
+            showRoboFeedback(points, activeTeam, oppositeTeam);
+            
+            updateHeader();
+        }
+
+        function triggerError() {
+            if (gameState.isProcessing) return;
+            if (!gameState.questionRevealed) return;
+            if (gameState.robberyActive) return;
+            if (gameState.errorLocked) return;
+            if (gameState.isRoundFinished) return;
+            if (gameState.allAnswersRevealed) return;
+            
+            if (gameState.isRobberyMode) {
+                if (gameState.robberyErrorUsed) return;
+                
+                gameState.robberyErrorUsed = true;
+                gameState.isRobberyMode = false;
+                gameState.isRoundFinished = true;
+                
+                document.getElementById('btnError').disabled = true;
+                document.getElementById('btnRobo').disabled = true;
+                document.getElementById('btnNext').disabled = false;
+                document.getElementById('btnShowAll').classList.add('visible');
+                
+                document.getElementById('headerTeam1').classList.remove('robbery-mode');
+                document.getElementById('headerTeam2').classList.remove('robbery-mode');
+                
+                const originalTeam = gameState.originalTeam === 1 ? gameState.team1 : gameState.team2;
+                const robbingTeam = gameState.activeTeam === 1 ? gameState.team1 : gameState.team2;
+                
+                showRoboFailedFeedback(originalTeam, robbingTeam);
+                
+                updateHeader();
+                return;
+            }
+            
+            const team = gameState.activeTeam === 1 ? gameState.team1 : gameState.team2;
+            
+            gameState.errorCount++;
+            team.mistakes = (team.mistakes || 0) + 1;
+            
+            const counterId = gameState.activeTeam === 1 ? 'errorCounter1' : 'errorCounter2';
+            document.getElementById(counterId).textContent = '' + team.mistakes;
+            
+            gameState.errorLocked = true;
+            document.getElementById('btnError').disabled = true;
+            gameState.isProcessing = true;
+            
+            if (gameState.errorCount >= 3) {
+                showRobberyOverlay(team);
+            } else {
+                showErrorOverlay(team);
+                setTimeout(() => {
+                    hideErrorOverlay();
+                    gameState.isProcessing = false;
+                    gameState.errorLocked = false;
+                    if (!gameState.isRoundFinished && !gameState.robberyActive && !gameState.isRobberyMode && !gameState.allAnswersRevealed) {
+                        document.getElementById('btnError').disabled = false;
+                    }
+                    updateHeader();
+                }, 2000);
+            }
+        }
+
+        function showRobberyOverlay(team) {
+            const overlay = document.getElementById('feedbackOverlay');
+            document.getElementById('feedbackText').textContent = 'ROBO DE PUNTOS';
+            document.getElementById('feedbackText').className = 'feedback-text robbery-text';
+            document.getElementById('feedbackSubtext').textContent = team.name + ' ha cometido 3 errores. El equipo contrario puede robar los ' + gameState.totalRevealedPoints + ' puntos acumulados!';
+            document.getElementById('feedbackSubtext').className = 'feedback-subtext robbery';
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                hideErrorOverlay();
+                activateRobberyMode(team);
+            }, 2000);
+        }
+
+        function activateRobberyMode(team) {
+            gameState.originalTeam = gameState.activeTeam;
+            
+            const oppositeTeamNum = gameState.activeTeam === 1 ? 2 : 1;
+            gameState.activeTeam = oppositeTeamNum;
+            
+            gameState.isRobberyMode = true;
+            gameState.isProcessing = false;
+            gameState.errorLocked = false;
+            gameState.robberyErrorUsed = false;
+            
+            const teamId = gameState.activeTeam === 1 ? 'headerTeam1' : 'headerTeam2';
+            document.getElementById(teamId).classList.add('robbery-mode');
+            
+            updateHeader();
+            
+            document.querySelectorAll('.answer-item').forEach(item => {
+                const idx = parseInt(item.dataset.index);
+                if (!gameState.revealedAnswers.includes(idx)) {
+                    item.classList.remove('disabled');
+                    const textSpan = item.querySelector('.answer-text');
+                    const originalText = item.dataset.realText;
+                    textSpan.textContent = originalText.replace(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '*');
+                    textSpan.classList.add('hidden-text');
+                    item.onclick = () => selectAnswer(idx);
+                }
+            });
+            
+            document.getElementById('btnError').disabled = false;
+            document.getElementById('btnRobo').disabled = true;
+            document.getElementById('btnShowAll').classList.remove('visible');
+        }
+
+        function selectRobberyAnswer(index) {
+            if (!gameState.isRobberyMode) return;
+            if (gameState.robberyAnswered) return;
+            if (gameState.revealedAnswers.includes(index)) return;
+            if (gameState.robberyErrorUsed) return;
+            
+            const question = ALL_QUESTIONS[gameState.currentQuestion];
+            const selectedAnswer = question.answers[index];
+            const items = document.querySelectorAll('.answer-item');
+            
+            gameState.robberyAnswered = true;
+            gameState.revealedAnswers.push(index);
+            
+            const item = items[index];
+            const textSpan = item.querySelector('.answer-text');
+            textSpan.textContent = selectedAnswer.text;
+            textSpan.classList.remove('hidden-text');
+            item.classList.add('revealed', 'correct-highlight');
+            
+            const robbingTeam = gameState.activeTeam === 1 ? gameState.team1 : gameState.team2;
+            const losingTeam = gameState.activeTeam === 1 ? gameState.team2 : gameState.team1;
+            
+            const pointsToRob = gameState.totalRevealedPoints;
+            
+            losingTeam.score = Math.max(0, losingTeam.score - pointsToRob);
+            robbingTeam.score += pointsToRob;
+            
+            gameState.teamScores[losingTeam.id] = losingTeam.score;
+            gameState.teamScores[robbingTeam.id] = robbingTeam.score;
+            saveGameState();
+            
+            gameState.isRobberyMode = false;
+            gameState.isRoundFinished = true;
+            
+            document.getElementById('btnNext').disabled = false;
+            document.getElementById('btnError').disabled = true;
+            document.getElementById('btnRobo').disabled = true;
+            document.getElementById('btnShowAll').classList.add('visible');
+            
+            document.getElementById('headerTeam1').classList.remove('robbery-mode');
+            document.getElementById('headerTeam2').classList.remove('robbery-mode');
+            
+            const overlay = document.getElementById('feedbackOverlay');
+            document.getElementById('feedbackText').textContent = 'ROBO EXITOSO';
+            document.getElementById('feedbackText').className = 'feedback-text';
+            document.getElementById('feedbackSubtext').textContent = robbingTeam.name + ' roba ' + pointsToRob + ' pts de ' + losingTeam.name;
+            document.getElementById('feedbackSubtext').className = 'feedback-subtext robbery';
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                hideErrorOverlay();
+            }, 2000);
+            
+            updateHeader();
+        }
+
+        function showAllAnswers() {
+            if (gameState.allAnswersRevealed) return;
+            if (!gameState.isRoundFinished) return;
+            
+            const question = ALL_QUESTIONS[gameState.currentQuestion];
+            const items = document.querySelectorAll('.answer-item');
+            
+            items.forEach((item, index) => {
+                if (!gameState.revealedAnswers.includes(index)) {
+                    const textSpan = item.querySelector('.answer-text');
+                    const realText = item.dataset.realText;
+                    textSpan.textContent = realText;
+                    textSpan.classList.remove('hidden-text');
+                    item.classList.add('show-all');
+                    item.classList.remove('disabled');
+                    item.onclick = null;
+                }
+            });
+            
+            gameState.allAnswersRevealed = true;
+            document.getElementById('btnShowAll').classList.remove('visible');
+        }
+
+        function showRoboFailedFeedback(originalTeam, robbingTeam) {
+            const overlay = document.getElementById('feedbackOverlay');
+            document.getElementById('feedbackText').textContent = 'ROBO FALLIDO';
+            document.getElementById('feedbackText').className = 'feedback-text';
+            document.getElementById('feedbackSubtext').textContent = robbingTeam.name + ' ha fallado. ' + originalTeam.name + ' se queda con sus ' + gameState.totalRevealedPoints + ' puntos';
+            document.getElementById('feedbackSubtext').className = 'feedback-subtext robo-failed';
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                hideErrorOverlay();
+            }, 2000);
+        }
+
+        function switchTurn(teamNumber) {
+            if (gameState.isProcessing) return;
+            if (gameState.robberyActive) return;
+            if (gameState.isRoundFinished) return;
+            if (gameState.isRobberyMode) return;
+            if (gameState.allAnswersRevealed) return;
+            
+            if (gameState.activeTeam === teamNumber) return;
+            
+            gameState.activeTeam = teamNumber;
+            gameState.errorCount = 0;
+            gameState.errorLocked = false;
+            
+            const team = teamNumber === 1 ? gameState.team1 : gameState.team2;
+            team.mistakes = 0;
+            document.getElementById('errorCounter1').textContent = '0';
+            document.getElementById('errorCounter2').textContent = '0';
+            
+            if (gameState.questionRevealed && !gameState.isRoundFinished) {
+                document.getElementById('btnError').disabled = false;
+            }
+            
+            updateHeader();
+        }
+
+        function showErrorOverlay(team) {
+            const overlay = document.getElementById('feedbackOverlay');
+            document.getElementById('feedbackText').textContent = 'RESPUESTA INCORRECTA';
+            document.getElementById('feedbackText').className = 'feedback-text';
+            document.getElementById('feedbackSubtext').textContent = team.name + ' - Error ' + gameState.errorCount + ' de 3';
+            document.getElementById('feedbackSubtext').className = 'feedback-subtext';
+            overlay.classList.add('show');
+        }
+
+        function hideErrorOverlay() {
+            document.getElementById('feedbackOverlay').classList.remove('show');
+        }
+
+        function showPointsFeedback(points, team) {
+            const overlay = document.getElementById('feedbackOverlay');
+            document.getElementById('feedbackText').textContent = '+' + points + ' PUNTOS';
+            document.getElementById('feedbackText').className = 'feedback-text';
+            document.getElementById('feedbackSubtext').textContent = team.name + ' gana ' + points + ' puntos';
+            document.getElementById('feedbackSubtext').className = 'feedback-subtext';
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                hideErrorOverlay();
+            }, 1200);
+        }
+
+        function showRoboFeedback(points, losingTeam, winningTeam) {
+            const overlay = document.getElementById('feedbackOverlay');
+            document.getElementById('feedbackText').textContent = 'ROBO DE PUNTOS';
+            document.getElementById('feedbackText').className = 'feedback-text';
+            document.getElementById('feedbackSubtext').textContent = winningTeam.name + ' roba ' + points + ' pts de ' + losingTeam.name;
+            document.getElementById('feedbackSubtext').className = 'feedback-subtext robo-success';
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                hideErrorOverlay();
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            if (gameState.isProcessing) return;
+            
+            const available = getAvailableQuestions();
+            if (available.length === 0) {
+                alert('Ya respondiste todas las preguntas! Ve a la pagina de equipos y reinicia.');
+                return;
+            }
+            
+            gameState.activeTeam = gameState.activeTeam === 1 ? 2 : 1;
+            
+            loadNewQuestion();
+            updateHeader();
+            updateProgress();
+        }
+
+        function exitGame() {
+            if (confirm('Seguro que quieres salir? Se guardara el progreso.')) {
+                saveGameState();
+                window.location.href = 'teams.html';
+            }
+        }
+
+        // ==========================================
+        // ========== ACTUALIZAR UI ==========
+        // ==========================================
+
+        function updateHeader() {
+            document.getElementById('headerPts1').textContent = gameState.team1.score + ' pts';
+            document.getElementById('headerPts2').textContent = gameState.team2.score + ' pts';
+            
+            document.getElementById('headerTeam1').classList.toggle('active', gameState.activeTeam === 1);
+            document.getElementById('headerTeam2').classList.toggle('active', gameState.activeTeam === 2);
+            
+            document.getElementById('errorCounter1').textContent = '' + (gameState.team1.mistakes || 0);
+            document.getElementById('errorCounter2').textContent = '' + (gameState.team2.mistakes || 0);
+        }
+
+        function updateProgress() {
+            const used = gameState.usedQuestionIds.length;
+            const total = ALL_QUESTIONS.length;
+            const remaining = total - used;
+            const percentage = (used / total) * 100;
+            
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = 'Preguntas usadas: ' + used + ' de ' + total + ' | Restantes: ' + remaining;
+        }
+    </script>
+</body>
+</html>

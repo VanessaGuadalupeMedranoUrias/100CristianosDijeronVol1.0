@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Cristianos Dijeron - Inicio</title>
+    
+    <style>
+        /* ========== ESTILOS HOME ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f0f85a 0%, #a24b4b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .home-container {
+            background: white;
+            border-radius: 25px;
+            padding: 50px 40px;
+            max-width: 950px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .welcome-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 15px;
+            
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .welcome-image:hover {
+            transform: scale(1.02);
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #4a5568;
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .feature-card {
+            background: #f7fafc;
+            padding: 15px 10px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .feature-label {
+            font-size: 0.85rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .btn-iniciar {
+           
+            background-color: #d23c3c;
+            color: white;
+            border: none;
+            padding: 18px 60px;
+            font-size: 1.4rem;
+            font-family:monospace;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            width: 30%;
+            letter-spacing: 2px;
+        }
+
+        .btn-iniciar:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-iniciar:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .version-info {
+            margin-top: 25px;
+            color: #a0aec0;
+            font-size: 0.8rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .home-container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .btn-iniciar {
+                font-size: 1.1rem;
+                padding: 15px 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="home-container">
+        <!-- Imagen de bienvenida -->
+        <img src="assets/images/inicio.png" 
+             alt="Bienvenida a 100 Cristianos Dijeron" 
+             class="welcome-image"
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22300%22%3E%3Crect fill=%22%23667eea%22 width=%22600%22 height=%22300%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2228%22 font-family=%22Arial%22%3E100 Cristianos Dijeron%3C/text%3E%3C/svg%3E'">
+        
+        
+        
+        <!-- Boton INICIAR -->
+        <button class="btn-iniciar" onclick="goToTeams()">
+            INICIAR
+        </button>
+        
+        <div class="version-info">
+            <small>v1.0 - Presiona el boton para comenzar</small>
+        </div>
+    </div>
+
+    <script>
+        // ========== JS HOME ==========
+        
+        function goToTeams() {
+            // Animacion de salida
+            const container = document.querySelector('.home-container');
+            container.style.animation = 'fadeOut 0.3s ease forwards';
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: scale(1); }
+                    to { opacity: 0; transform: scale(0.95); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            setTimeout(() => {
+                window.location.href = 'teams.html';
+            }, 300);
+        }
+
+        // Tecla Enter para iniciar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                goToTeams();
+            }
+        });
+
+        console.log('Home cargado correctamente');
+    </script>
+</body>
+</html>
