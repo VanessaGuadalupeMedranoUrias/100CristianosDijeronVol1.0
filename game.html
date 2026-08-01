@@ -735,7 +735,7 @@
         <!-- PREGUNTA -->
         <div class="question-section">
             <div class="question-text hidden" id="questionText">
-                Haz clic en el ojo para revelar la pregunta
+                Haz click para revelar la pregunta
             </div>
         </div>
 
@@ -1114,6 +1114,7 @@
         }
 
         function getAvailableQuestions() {
+            // Devuelve las preguntas NO usadas en orden (por id)
             return ALL_QUESTIONS.filter(q => !gameState.usedQuestionIds.includes(q.id));
         }
 
@@ -1124,8 +1125,8 @@
                 saveGameState();
                 return getNextQuestion();
             }
-            const randomIndex = Math.floor(Math.random() * available.length);
-            return available[randomIndex];
+            // Devuelve la PRIMERA pregunta disponible (la de menor id)
+            return available[0];
         }
 
         // ==========================================
@@ -1189,7 +1190,7 @@
 
             const question = ALL_QUESTIONS[gameState.currentQuestion];
             
-            document.getElementById('questionText').textContent = 'Haz clic en el ojo para revelar la pregunta';
+            document.getElementById('questionText').textContent = '';
             document.getElementById('questionText').className = 'question-text hidden';
             
             const container = document.getElementById('answersList');
